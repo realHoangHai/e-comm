@@ -1,10 +1,14 @@
 "use strict";
 
-const mongoose = require("mongoose");
+const mongoose = require("mongoose")
 
-const connString = `mongodb://127.0.0.1:27017/shop`;
+const {db: { host, port, name }} = require('../configs/config.mongodb')
+
+const connString = `mongodb://${host}:${port}/${name}`;
 
 const { countConnection } = require("../helpers/check.connection");
+
+console.log(`connectString: `, connString)
 
 class Database {
   constructor() {
@@ -23,11 +27,9 @@ class Database {
         maxPoolSize: 50,
       })
       .then((_) => {
-        console.log(`Connected Mongodb Success`);
-
-        countConnection();
+        console.log(`Connected Mongodb Success: `, countConnection());
       })
-      .catch((err) => console.log(`Error connect!`));
+      .catch((err) => console.log(`Error connect!`, err));
   }
 
   static getInstance() {
