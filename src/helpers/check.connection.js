@@ -17,7 +17,7 @@ const checkOverload = () => {
         const numConnection = mongoose.connections.length
         const numCores = os.cpus().length
         const memoryUsage = process.memoryUsage().rss
-        // Assume maximum number of connections base on number of cores
+        // Assume the maximum number of connection bases on number of cores
         const maxConnections = numCores * 5
 
         console.log(`Active connections: ${numConnection}`)
@@ -32,6 +32,5 @@ const checkOverload = () => {
 }
 
 module.exports = {
-    countConnection,
-    checkOverload
+    countConnection, checkOverload
 }

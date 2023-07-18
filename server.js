@@ -7,5 +7,8 @@ const server = app.listen(PORT, () => {
 })
 
 process.on('SIGINT', () => {
-    server.close(() => console.log(`server stopping`))
+    server.close(() => {
+        console.log(`server stopping`)
+        process.exit(0)
+    })
 })

@@ -2,43 +2,44 @@
 
 const mongoose = require("mongoose")
 
-const {db: { host, port, name }} = require('../configs/config.mongodb')
+const {db: {host, port, name}} = require('../configs/config.mongodb')
 
 const connString = `mongodb://${host}:${port}/${name}`;
 
-const { countConnection } = require("../helpers/check.connection");
+const {countConnection} = require("../helpers/check.connection");
 
 console.log(`connectString: `, connString)
 
 class Database {
-  constructor() {
-    this.connect();
-  }
-
-  // connect
-  connect(type = "mongodb") {
-    if (1 === 1) {
-      mongoose.set("debug", true);
-      mongoose.set("debug", { color: true });
+    constructor() {
+        this.connect();
     }
 
-    mongoose
-      .connect(connString, {
-        maxPoolSize: 50,
-      })
-      .then((_) => {
-        console.log(`Connected Mongodb Success: `, countConnection());
-      })
-      .catch((err) => console.log(`Error connect!`, err));
-  }
+    static getInstance() {
+        if (!Database.instance) {
+            Database.instance = new Database();
+        }
 
-  static getInstance() {
-    if (!Database.instance) {
-      Database.instance = new Database();
+        return Database.instance;
     }
 
-    return Database.instance;
-  }
+    // connect
+    connect(type = "mongodb") {
+        if (1 === 1) {
+            mongoose.set("debug", true);
+            mongoose.set("debug", {color: true});
+        }
+
+        mongoose
+            .connect(connString, {
+                maxPoolSize: 50,
+            })
+            .then((_) => {
+                console.log(`Connected Mongodb Success: `);
+                countConnection()
+            })
+            .catch((err) => console.log(`Error connect!`, err));
+    }
 }
 
 const instanceMongodb = Database.getInstance();
