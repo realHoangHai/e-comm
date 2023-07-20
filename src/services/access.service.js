@@ -22,42 +22,34 @@ class AccessService {
      * Refresh token
      * 1. Check this token used
      */
-    static handleRefreshToken = async (refeshToken) => {
-        const foundToken = await KeyTokenService.findByRefreshTokenUsed(refeshToken)
-        if (foundToken) {
-            // decode to check who is the user
-            const { userId, email } = await verifyJWT(refeshToken, foundToken.privateKey)
-            console.log({userId, email})
-            // delete
+    static handleRefreshToken = async ({refreshToken, user, keyStore}) => {
+        const {userId, email} = user
+        if (keyStore.refreshTokenUsed.includes(refreshToken)) {
             await KeyTokenService.deleteKeyById(userId)
             throw new ConflictRequestError('Something wrong happened! Please try to login again.')
         }
 
-        // No token found
-        const holderToken = await KeyTokenService.findByRefreshToken(refeshToken)
-        if (!holderToken) throw new UnauthorizedRequestError('Shop not registered')
+        if (keyStore.refreshToken !== refreshToken)throw new UnauthorizedRequestError('Shop not registered')
 
-        // verify token
-        const { userId, email } = await verifyJWT(refeshToken, holderToken.privateKey)
         // check user_id
         const foundShop = await findByEmail({email})
         if (!foundShop) throw new UnauthorizedRequestError('Shop not registered')
 
         // create token pairs
-        const tokens = await createTokenPair({userId, email}, holderToken.publicKey, holderToken.privateKey)
+        const tokens = await createTokenPair({userId, email}, keyStore.publicKey, keyStore.privateKey)
 
         // update token
-        await holderToken.updateOne({
+        await keyStore.updateOne({
             $set: {
                 refreshToken: tokens.refreshToken
             },
             $addToSet: {
-                refreshTokenUsed: refeshToken // đã đc sử dụng để lấy token mới
+                refreshTokenUsed: refreshToken // đã đc sử dụng để lấy token mới
             }
         })
 
         return {
-            user: {userId, email},
+            user,
             tokens
         }
     }

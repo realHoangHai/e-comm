@@ -40,9 +40,7 @@ class KeyTokenService {
 
     static findByUserId = async (userId) => {
         let uid = new Types.ObjectId(userId)
-        let keyStore = await keytokenModel.findOne({user: uid}).lean();
-        // console.log(keyStore)
-        return keyStore
+        return keytokenModel.findOne({user: uid});
     }
 
     static findByRefreshTokenUsed = async (refreshToken) => {
